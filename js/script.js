@@ -1,5 +1,7 @@
 window.addEventListener('DOMContentLoaded', () => {
 
+    // Tabs
+
     const tabs = document.querySelectorAll('.tabheader__item'),
           tabsContent = document.querySelectorAll('.tabcontent'),
           tabsParent = document.querySelector('.tabheader__items');
@@ -34,6 +36,96 @@ window.addEventListener('DOMContentLoaded', () => {
                     showTabContent(i);
                 }
             });
+        }
+    });
+
+    // Timer
+
+    const deadline = '2020-08-20';
+
+    function getTimeRemaining(endtime) {
+        const t = Date.parse(endtime) - Date.parse(new Date()),
+              days = Math.floor(t / (1000 * 60 * 60 * 24)),
+              hours = Math.floor((t / (1000 * 60 * 60) % 24)), // нужно получить остаток от деления на сутки
+              minutes = Math.floor((t / 1000 / 60) % 60),
+              seconds =  Math.floor((t / 1000) % 60);
+
+        return {
+            'total': t,
+            'days': days,
+            'hours': hours,
+            'minutes': minutes,
+            'seconds': seconds
+        };
+    }
+
+    function getZero(num) {
+        if (num >= 0 && num < 10) {
+            return `0${num}`;
+        } else {
+            return num;
+        }
+    }
+
+    function setClock(selector, endtime) {
+        const timer = document.querySelector(selector),
+              days = timer.querySelector('#days'),
+              hours = timer.querySelector('#hours'),
+              minutes = timer.querySelector('#minutes'),
+              seconds = timer.querySelector('#seconds'),
+              timeInterval = setInterval(updateClock, 1000);
+
+        updateClock(); // чтобы избежать мигания верстки
+
+        function updateClock() {
+            const t = getTimeRemaining(endtime);
+
+            days.innerHTML = getZero(t.days);
+            hours.innerHTML = getZero(t.hours);
+            minutes.innerHTML = getZero(t.minutes);
+            seconds.innerHTML = getZero(t.seconds);
+
+            if (t.total <= 0) {
+                clearInterval(timeInterval);
+            }
+        }
+    }
+
+    setClock('.timer', deadline);
+
+    // Modal
+
+    const modalTrigger = document.querySelectorAll('[data-modal]'), // поиск по кнопкам с data-атрибутами
+          modal = document.querySelector('.modal'),
+          modalCloseBtn = document.querySelector('[data-close]'); 
+
+    modalTrigger.forEach(btn => { // назначить всем кнопкам
+        btn.addEventListener('click', () => {
+            modal.classList.add('show'); // встроенные классы
+            modal.classList.remove('hide');
+            // modal.classList.toggle('show'); // то же самое с помощью toggle
+            document.body.style.overflow = 'hidden'; // чтобы страница не прокручивалась, когда открыто модальное окно
+        });
+    });
+
+    function closeModal() {
+        modal.classList.add('hide');
+        modal.classList.remove('show');
+        // modal.classList.toggle('show');
+        document.body.style.overflow = ''; // восстановить прокрутку страницы, когда модальное окно закрыто
+    }
+
+    modalCloseBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (e) => { // чтобы окно закрывалось при клике на подложку
+        if (e.target === modal) { // потому что модальное окно на весь экран, а маленькая форма для заполнения - это modal dialog
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => { // чтобы окно закрывалось при клике на esc
+        if (e.code === "Escape" && modal.classList.contains('show')) { // второе условие чтобы работал только когда окно открыто
+            closeModal();
         }
     });
 });
