@@ -183,6 +183,8 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // используем asyns / await
+
     const getResource = async (url) => { // получаем данные для карточек с сервера
         const res = await fetch(url);
 
@@ -194,10 +196,19 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
 
-    getResource('http://localhost:3000/menu')
+    // getResource('http://localhost:3000/menu')
+    //     .then(data => {
+    //         data.forEach(({img, altimg, title, descr, price}) => { // деструктуризация объекта из файла db.json
+    //             new MenuCard(img, altimg, title, descr, price, '.menu .container').render(); // .menu .container - это родитель
+    //         });
+    //     });
+
+    // создание карточек с использованием axios
+    
+    axios.get('http://localhost:3000/menu')
         .then(data => {
-            data.forEach(({img, altimg, title, descr, price}) => { // деструктуризация объекта из файла db.json
-                new MenuCard(img, altimg, title, descr, price, '.menu .container').render(); // .menu .container - это родитель
+            data.data.forEach(({img, altimg, title, descr, price}) => { 
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render(); 
             });
         });
 
@@ -334,7 +345,56 @@ window.addEventListener('DOMContentLoaded', () => {
     // .then(response => response.json())
     // .then(json => console.log(json));
 
-    fetch('http://localhost:3000/menu')
-        .then(data => data.json())
-        .then(res => console.log(res));
+    // fetch('http://localhost:3000/menu')
+    //     .then(data => data.json())
+    //     .then(res => console.log(res));
+
+    // Slider
+
+    const slides = document.querySelectorAll('.offer__slide'),
+          prev = document.querySelector('.offer__slider-prev'),
+          next = document.querySelector('.offer__slider-next'),
+          total = document.querySelector('#total'), // общее количество слайдов
+          current = document.querySelector('#current'); // текущий слайд
+    let slideIndex = 1;
+
+    showSlides(slideIndex);
+
+    if (slides.length < 10) {
+        total.textContent = `0${slides.length}`;
+    } else {
+        total.textContent = slides.length;
+    }
+
+    function showSlides(n) {
+        if (n > slides.length) { // если мы дошли до правой границы слайдера
+            slideIndex = 1;      // то возвращаемся на первый слайд
+        }
+
+        if (n < 1) {                    // если уходим в левую сторону от первого слайда
+            slideIndex = slides.length; // то перемещаемся в конец
+        }
+
+        slides.forEach(item => item.style.display = 'none'); // скрываем все слайды
+
+        slides[slideIndex - 1].style.display = 'block';
+
+        if (slides.length < 10) { // узнать и добавить в поле текущий слайд
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+    }
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+
+    prev.addEventListener('click', () => {
+        plusSlides(-1);
+    });
+
+    next.addEventListener('click', () => {
+        plusSlides(1);
+    });
 });
