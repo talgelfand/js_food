@@ -444,11 +444,21 @@ window.addEventListener('DOMContentLoaded', () => {
         dots.push(dot); // создание массива из точек
     }
 
+    function deleteNotDigits(str) {
+        return +str.replace(/\D/g, '');
+    }
+
     next.addEventListener('click', () => {
-        if (offset == +width.slice(0, width.length - 2) * (slides.length - 1)) { // если мы долистали до конца и нам необходимо вернуться в начало
-            offset = 0; // width = 500px, пожтому два последних символа (px) вырезаем slice
-        } else { // если мы не дошли до конца, то добавляем отступ
-            offset += +width.slice(0, width.length - 2); // когда мы нажимаем стрелку вперед, к оффсету добавляется ширина еще одного слайда
+        // if (offset == +width.slice(0, width.length - 2) * (slides.length - 1)) { // если мы долистали до конца и нам необходимо вернуться в начало
+        //     offset = 0; // width = 500px, пожтому два последних символа (px) вырезаем slice
+        // } else { // если мы не дошли до конца, то добавляем отступ
+        //     offset += +width.slice(0, width.length - 2); // когда мы нажимаем стрелку вперед, к оффсету добавляется ширина еще одного слайда
+        // }
+
+        if (offset == deleteNotDigits(width) * (slides.length - 1)) { // убрать все не буквы (px) в строке
+            offset = 0;
+        } else {
+            offset += deleteNotDigits(width);
         }
 
         moveSlide();
@@ -466,9 +476,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     prev.addEventListener('click', () => {
         if (offset == 0) { // когда мы на первом слайде нажимаем кнопку назад
-            offset = +width.slice(0, width.length - 2) * (slides.length - 1); // мы перемещаемся в конец
+            offset = deleteNotDigits(width) * (slides.length - 1); // мы перемещаемся в конец
         } else { 
-            offset -= +width.slice(0, width.length - 2); 
+            offset -= deleteNotDigits(width); 
         }
 
         moveSlide();
@@ -489,7 +499,7 @@ window.addEventListener('DOMContentLoaded', () => {
             const slideTo = e.target.getAttribute('data-slide-to');
 
             slideIndex = slideTo;
-            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            offset = deleteNotDigits(width) * (slideTo - 1);
 
             moveSlide();
 
